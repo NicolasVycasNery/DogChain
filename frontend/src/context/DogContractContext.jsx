@@ -14,8 +14,21 @@ export const DogContractProvider = ({
     const [contract, setContract] = useState(null);
 
     const load = async () => {
+        const abi = contractABI.abi;
+        if (!signer) {
+            console.error("Signer not loaded");
+            return;
+        }
+        if (!ethers.utils.isAddress(ContractAddress)) {
+            console.error("Invalid contract address");
+            return;
+        }
+        if (!abi) {
+            console.error("Invalid abi");
+            return;
+        }
         // Create a new ethers.js instance
-        const contract = new ethers.Contract(ContractAddress, contractABI.abi, signer);
+        const contract = new ethers.Contract(ContractAddress, abi, signer);
         setContract(contract);
     };
 
