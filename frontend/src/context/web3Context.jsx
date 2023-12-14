@@ -32,6 +32,7 @@ export const Web3Provider = ({
 
     useEffect(() => {
         load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 
