@@ -33,6 +33,7 @@ export const DogContractProvider = ({
         }
 
     }
+
     async function getAdopters() {
         if (checkContract()) {
             return;
@@ -44,6 +45,7 @@ export const DogContractProvider = ({
             setError(e.message);
         }
     }
+
     async function getAdopter(id) {
         if (checkContract()) {
             return;
@@ -55,6 +57,7 @@ export const DogContractProvider = ({
             setError(e.message);
         }
     }
+    
     async function transferAdoption(id, to_address) {
         if (checkContract()) {
             return;
