@@ -1,8 +1,8 @@
-import { createContext, useEffect, useState, useContext } from "react";
 import { ethers } from 'ethers';
-import PropTypes from 'prop-types'
-import { Web3Context } from "./web3Context.jsx";
+import PropTypes from 'prop-types';
+import { createContext, useContext, useEffect, useState } from "react";
 import contractABI from "../contracts/DogContract.json";
+import { useWeb3 } from "./web3Context.jsx";
 
 export const DogContractContext = createContext(null);
 const ContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
@@ -10,7 +10,7 @@ const ContractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 export const DogContractProvider = ({
     children,
 }) => {
-    const { signer } = useContext(Web3Context);
+    const { signer } = useWeb3();
     const [contract, setContract] = useState(null);
     const [error, setError] = useState(null);
 
@@ -57,7 +57,7 @@ export const DogContractProvider = ({
             setError(e.message);
         }
     }
-    
+
     async function transferAdoption(id, to_address) {
         if (checkContract()) {
             return;
@@ -112,3 +112,13 @@ export const DogContractProvider = ({
 DogContractProvider.propTypes = {
     children: PropTypes.node.isRequired,
 };
+
+export function useDogContract() {
+    const context = useContext(DogContractContext);
+    if (context === undefined) {
+        throw new Error('useDogContract must be used within a DogContractProvider');
+    }
+    return context;
+}
+
+
