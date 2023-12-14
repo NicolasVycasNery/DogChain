@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState } from "react";
 import { ethers } from 'ethers';
-
 import PropTypes from 'prop-types'
 
 export const Web3Context = createContext(null);
@@ -32,7 +31,7 @@ export const Web3Provider = ({
 
     useEffect(() => {
         load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 
