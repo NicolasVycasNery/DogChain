@@ -1,43 +1,95 @@
-import { useDogContract } from '../context/DogContractContext';
-import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import Swal from 'sweetalert2';
+import { useWeb3 } from '../hooks.js';
+import { useState } from 'react';
 
-function DogCard({ dog }) {
-    const [img, setImg] = useState(dog.img);
+function DogCard({ dog, isOwner }) {
+    const { adopt, transferAdoption,getAdopter } = useWeb3();
+    const [dogState, setDogState] = useState(dog);
 
-    const { adopt } = useDogContract();
-
-    useEffect(() => {
-        async function load() {
-            const reespose = await fetch(dog.img);
-            const data = await reespose.json();
-            const img = data.message;
-            setImg(img);
-        }
-        load();
-    }, [dog.img]);
-
-    function handleAdopt(e) {
+    async function handleAdopt(e) {
         e.preventDefault();
-        adopt(dog.id);
+        const { id } = dogState;
+        console.log("adopting dog with id: ", id);
+        const hash = await adopt(id);
+        Swal.fire({
+            title: `You adopted ${dogState.name}, congrats!`,
+            text: `Transaction hash: ${hash}`,
+            icon: 'success',
+            confirmButtonText: 'Cool',
+        });
+
+        const dog = { ...dogState };
+
+        dog.adopted = true;
+        dog.adopter = await getAdopter(id);
+
+        setDogState(dog);
     }
 
+    async function handleTransferAdoption(e) {
+        e.preventDefault();
+        const { id } = dogState;
+        const { value: address } = await Swal.fire({
+            title: 'Enter the address of the new owner',
+            input: 'text',
+            inputLabel: 'Address',
+            inputPlaceholder: 'Enter the address of the new owner',
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            cancelButtonColor: 'red',
+        });
+        if (!address || address.length != 42) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'You need to enter an valid address!',
+            });
+            return;
+        }
+
+        const hash = await transferAdoption(id, address);
+        Swal.fire({
+            title: `You transferred ${dogState.name} to ${address}, congrats!`,
+            text: `Transaction hash: ${hash}`,
+            icon: 'success',
+            confirmButtonText: 'Cool',
+        });
+    }
 
     return (
         <div className="max-w-sm rounded overflow-hidden shadow-lg m-4">
             <div className="flex-grow">
-                <img className="w-full object-cover" src={img} alt={dog.name} />
+                <img className="w-full h-64 object-cover"
+                    src={dogState.img} alt={dogState.name} />
             </div>
             <div className="px-6 py-4 text-center mt-auto">
-                <div className="font-bold text-xl mb-2">{dog.name}</div>
-                <p className="text-gray-700 text-base">Age: {dog.age}</p>
-                <p className="text-gray-700 text-base">Adopted: {dog.adopted ? "Yes" : "No"}</p>
+                <div className="font-bold text-xl mb-2">{dogState.name}</div>
+                <p className="text-gray-700 text-base">Age: {dogState.age}</p>
+                <p className="text-gray-700 text-base">Adopted: {dogState.adopted ? "Yes" : "No"}</p>
+                <p className="text-gray-700 text-base">
+                    <span className="text-sm">
+                        id: {dogState.id}
+                    </span>
+                </p>
                 <div className="mt-4">
-                    {dog.adopted ?
-                        <p className="text-green-500 font-bold">Adopted by {dog.adopter}</p> :
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    {dogState.adopted ?
+                        <p className="text-green-500 font-bold">Adopted by {dogState.adopter}</p> :
+                        <button
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                             onClick={handleAdopt}
-                        >Adopt</button>
+                        >
+                            Adopt
+                        </button>
+                    }
+                    {
+                        isOwner &&
+                        <button
+                            className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded ml-4"
+                            onClick={handleTransferAdoption}
+                        >
+                            Transfer Adoption
+                        </button>
                     }
                 </div>
             </div>
@@ -54,6 +106,7 @@ DogCard.propTypes = {
         adopted: PropTypes.bool.isRequired,
         adopter: PropTypes.string,
     }).isRequired,
+    isOwner: PropTypes.bool,
 };
 
 export default DogCard;
