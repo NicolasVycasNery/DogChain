@@ -74,7 +74,13 @@ function DogCard({ dog, isOwner }) {
                 </p>
                 <div className="mt-4">
                     {dogState.adopted ?
-                        <p className="text-green-500 font-bold">Adopted by {dogState.adopter}</p> :
+                        <p className="text-green-500 font-bold">Adopted by 
+                        <span style={{
+                            wordWrap: "break-word",
+                            wordBreak: "break-all",
+                            fontSize: "0.8rem",
+                        }}> {dogState.adopter}</span>
+                        </p> :
                         <button
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                             onClick={handleAdopt}
