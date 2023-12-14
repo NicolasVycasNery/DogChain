@@ -17,6 +17,16 @@ async function main() {
       lockedAmount
     )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
   );
+
+  // deploy Adoption contract
+
+    const adoption = await ethers.deployContract("Adoption", []);
+
+    await adoption.waitForDeployment();
+
+    console.log(
+      `Adoption deployed to ${adoption.target}`
+    );
 }
 
 // We recommend this pattern to be able to use async/await everywhere
